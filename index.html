@@ -34,6 +34,16 @@
         border: solid;
         margin-bottom: 10px;
       }
+      #country_flag, .card{
+        display: none;
+      }
+      #alert{
+        display: none;
+        width: 50%;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 50px;
+      }
     </style>
   </head>
   <body>
@@ -45,12 +55,12 @@
         placeholder="Search for any country...."
         id="user_input"
       />
-
-      <button type="button" class="btn btn-primary" onclick="search()">
-        Search
-      </button>
+      <button class="btn btn-primary" onclick="search()">Search</button>
     </div>
-    <div class="card" style="width: 18rem">
+    <div class="alert alert-danger" id="alert" role="alert">
+      COUNTRY NOT FOUND   
+    </div>
+    <div class="card" id="card" style="width: 18rem">
       <div class="card-body">
         <h5 class="card-title" id="country_name"></h5>
         <h6 class="card-subtitle mb-2 text-muted" id="country_continent"></h6>
@@ -65,41 +75,58 @@
     </div>
     <script>
       const search = async () => {
+        document.getElementById("country_flag").style.display = "block";
+        document.getElementById("card").style.display = "block";
+
         const userInput = document.getElementById("user_input").value;
         const response = await fetch(
           `https://restcountries.com/v3.1/name/${userInput}`
         );
         const data = await response.json();
         console.log(data);
-        document.getElementById("country_name").innerText = data[0].name.common;
-        document.getElementById("country_continent").innerText = data[0].subregion;
-        document.getElementById("country_flag").src = data[0].flags.png;
-        document.getElementById("country_size").innerText = `Size : ${data[0].area}km`;
-        document.getElementById("country_population").innerText = `Population : ${data[0].population}`;
-        document.getElementById("country_capital").innerText = `Capital : ${data[0].capital[0]}`;
         
-        const currenciesObj = data[0].currencies;
-        const currencyObjKeys = Object.keys(currenciesObj);
-        console.log(currenciesObj, currencyObjKeys[0]);
-        
-        document.getElementById("country_currency").innerText = data[0].currencies.currencyObjKeys;
-        document.getElementById("country_currency").innerText = `Currency : ${currencyObjKeys[0]}`;
-
-        const langObj = data[0].languages;
-        const langObjKeys = Object.values(langObj);
-
-        if (langObjKeys[1] === undefined) {
-          console.log(langObjKeys[0]);
-          document.getElementById("country_languages").innerText = langObjKeys[0]
-        } 
-        else {
-          console.log(langObjKeys[0], langObjKeys[1]);
-          document.getElementById("country_languages").innerText = `Languages Spoken : ${langObjKeys[0]}, ${langObjKeys[1]}`
+        if(data.message === "Not Found"){
+          document.getElementById("alert").style.display = "block"
+          document.getElementById("card").style.display = "none";
 
         }
-        document.getElementById("country_geolocation").innerText = `Lat : ${data[0].latlng[0]}°  Long : ${data[0].latlng[1]}°`
+        else {       
+          document.getElementById("country_name").innerText = data[0].name.common;
+          document.getElementById("country_continent").innerText = data[0].subregion;
+          document.getElementById("country_flag").src = data[0].flags.png;
+          document.getElementById("country_size").innerText = `Size : ${data[0].area}km`;
+          document.getElementById("country_population").innerText = `Population : ${data[0].population}`;
+          document.getElementById("country_capital").innerText = `Capital : ${data[0].capital[0]}`;
+          
+          const currenciesObj = data[0].currencies;
+          const currencyObjKeys = Object.keys(currenciesObj);
+          console.log(currenciesObj, currencyObjKeys[0]);
+          
+          document.getElementById("country_currency").innerText = data[0].currencies.currencyObjKeys;
+          document.getElementById("country_currency").innerText = `Currency : ${currencyObjKeys[0]}`;
 
+          const langObj = data[0].languages;
+          const langObjKeys = Object.values(langObj);
+
+          if (langObjKeys[1] === undefined) {
+            console.log(langObjKeys[0]);
+            document.getElementById("country_languages").innerText = langObjKeys[0]
+          } 
+          else {
+            console.log(langObjKeys[0], langObjKeys[1]);
+            document.getElementById("country_languages").innerText = `Languages Spoken : ${langObjKeys[0]}, ${langObjKeys[1]}`
+
+          }
+          document.getElementById("country_geolocation").innerText = `Lat : ${data[0].latlng[0]}°  Long : ${data[0].latlng[1]}°`
+        }
       };
+      document.onkeydown = function (e) {
+          e = e || window.event;
+          var key = e.which || e.keyCode;
+          if (key === 13) {
+            search();
+          }
+        }
     </script>
   </body>
 </html>
